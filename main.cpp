@@ -116,32 +116,93 @@ int explore(const int &m, const int &n, int *matriz, const int &i, const int &j)
     return b*h;
 }
 
+void parseToint(const int& m, const int& n, char* entry, int** result){
+    *result = new int[m * n];
+
+    for(int i = 0; i < m; i++){
+        for(int j = 0; j < n; j++){
+            if(*((entry + i * n) + j) == '1') *((*result + i * n) + j) = 1;
+            else *((*result + i * n) + j) = 0;
+        }
+    }
+}
+
+bool readData(int& m, int& n, char** result){
+
+    cout << "Digite o numero de linhas da matriz booleana" << endl;
+    cin >> m;
+
+    cout << "Digite o numero de colunas que a matriz booleana" << endl;
+    cin >> n;
+
+    *result = new char[m * n];
+
+    cout << "Digite os valores [Linha 1]" << endl;
+
+    char v;
+
+    int i = 0;
+    int j = 0;
+
+    do
+    {
+        cin >> v;
+
+        *((*result + i * n) + j) = v;
+        j++;
+
+        if(j > n - 1)
+        {
+            j = 0;
+            i++;
+            cout << "Digite os valores [Linha " << i + 1 << "]" << endl;
+        }
+        if(i > m - 1)
+        {
+            return true;
+        }
+    }while(v == '1' || v == '0');
+
+    return false;
+}
+
 int main()
 {
-    const int M = 4;
-    const int N = 5;
-    int matrix[M][N] = {
-        {1,0,1,0,0},
-        {1,0,1,1,1},
-        {1,1,1,1,1},
-        {1,0,0,1,0}
-    };
+    int m;
+    int n;
+    char* entry = nullptr;
+    bool valid = readData(m, n, &entry);
+
+    if(!valid)
+    {
+        cout << "Entrada errada da matriz";
+        delete[] entry;
+
+        return 0;
+    }
+
+    int* matrix = nullptr;
+    parseToint(m, n, entry, &matrix);
+
+    delete[] entry;
 
     cout << "Entrada: " << endl;
-    print_array(M, N, (int*)matrix);
+    print_array(m, n, (int*)matrix);
 
     int m_area = 0;
 
-    for(int i = 0; i < M; i++){
-        for(int j = 0; j < N; j++){
-            if(matrix[i][j] == 1){
-                int a = explore(M, N, (int*)matrix, i, j);
+    for(int i = 0; i < m; i++){
+        for(int j = 0; j < n; j++){
+            if(*((matrix + i * n) + j) == 1){
+                int a = explore(m, n, (int*)matrix, i, j);
                 if(a > m_area) m_area = a;
             }
         }
     }
 
     cout << "Maior Area: " << m_area << endl;
+
+    delete[] matrix;
 
     return 0;
 }
