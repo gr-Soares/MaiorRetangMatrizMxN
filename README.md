@@ -10,7 +10,7 @@ ENTRADA:
 &nbsp;&nbsp;&nbsp;&nbsp;['1','0','1','1','1'],  
 &nbsp;&nbsp;&nbsp;&nbsp;['1','1','1','1','1'],  
 &nbsp;&nbsp;&nbsp;&nbsp;['1','0','0','1','0']  
-]
+]  
 SAIDA: 6
 
 ---

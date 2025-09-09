@@ -33,7 +33,7 @@ int explore_c(const int &m, const int &n, int *matriz, int i, int j)
 {
     int ii = i + 1;
 
-    if(ii < n)
+    if(ii < m)
     {
         int i_adj = *((matriz + ii * n) + j);
         if(i_adj == 1) return 1 + explore_c(m, n, matriz, ii, j);
@@ -47,73 +47,72 @@ int explore(const int &m, const int &n, int *matriz, const int &i, const int &j)
     int b = 1;
     int h = 1;
 
-    int ii = i + 1;
-    int jj = j + 1;
+    int range_l = 1 + explore_l(m, n, matriz, i, j);
+    int range_c = 1 + explore_c(m, n, matriz, i, j);
 
-    int dr = 1 + explore_l(m, n, matriz, i, j);
-    int db = 1 + explore_c(m, n, matriz, i, j);
+    if(range_l > range_c){
+        if(range_c == 1) return range_l;
+        b = range_l;
 
-    if(dr > db)
-    {
-        if(db == 1) return dr;
+        int reduced = 0;
 
-        for(int vb = 0; vb < db - 1; vb++)
-        {
-            int tb = b;
-            int th = h;
-
-            int cr = 1 + explore_l(m, n, matriz, ii + vb, j);
-            if(cr >= dr)
-            {
-                tb = dr;
-                th++;
-            }
+        for(int nl = 1; nl < range_c; nl++){
+            int range_nl = 1 + explore_l(m, n, matriz, i + nl, j);
+            if(range_nl >= b && reduced == 0) h = nl + 1;
             else
             {
-                tb = cr;
-                int tth = th + 1;
-                if(tth*tb > b*h) th = tth;
-            }
+                int temp_b = range_nl;
+                int temp_h = nl + 1;
 
-            if(tb*th > b*h)
-            {
-                b = tb;
-                h = th;
+                if(reduced != 0)
+                {
+                    if(temp_b > reduced) temp_b = reduced;
+                }
+
+                if(temp_b*temp_h > b*h)
+                {
+                    b = temp_b;
+                    h = temp_h;
+                }
+
+                reduced = temp_b;
             }
         }
 
-        if(dr > b*h) return dr;
-    }
-    else
-    {
-        if(dr == 1) return db;
-        for(int vr = 0; vr < dr - 1; vr++)
-        {
-            int tb = b;
-            int th = h;
+        if(range_l > b*h) return range_l;
 
-            int cb = 1 + explore_c(m, n, matriz, i, jj + vr);
-            if(cb >= db)
-            {
-                th = db;
-                tb++;
-            }
+    }else{
+        if(range_l == 1) return range_c;
+        h = range_c;
+
+        int reduced = 0;
+
+        for(int nc = 1; nc < range_l; nc++){
+            int range_nc = 1 + explore_c(m, n, matriz, i, j + nc);
+            if(range_nc >= h && reduced == 0) b = nc + 1;
             else
             {
-                tb = cb;
-                int tth = th + 1;
-                if(tth*tb > b*h) th = tth;
-            }
+                int temp_b = nc + 1;
+                int temp_h = range_nc;
 
-            if(tb*th > b*h)
-            {
-                b = tb;
-                h = th;
+                if(reduced != 0)
+                {
+                    if(temp_h > reduced) temp_h = reduced;
+                }
+
+                if(temp_b*temp_h > b*h)
+                {
+                    b = temp_b;
+                    h = temp_h;
+                }
+
+                reduced = temp_h;
             }
         }
 
-        if(db > b*h) return db;
+        if(range_c > b*h) return range_c;
     }
+
     return b*h;
 }
 
@@ -122,12 +121,13 @@ int main()
     const int M = 4;
     const int N = 5;
     int matrix[M][N] = {
+        {1,0,1,0,0},
+        {1,0,1,1,1},
         {1,1,1,1,1},
-        {1,0,0,0,1},
-        {1,0,0,0,1},
-        {1,1,1,1,1}
+        {1,0,0,1,0}
     };
 
+    cout << "Entrada: " << endl;
     print_array(M, N, (int*)matrix);
 
     int m_area = 0;
