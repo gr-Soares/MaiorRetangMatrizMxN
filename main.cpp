@@ -2,6 +2,18 @@
 
 using namespace std;
 
+/*
+    As operações de ponteiro foram realizadas utilizando uma abordagem aritmetica
+    Foram alocadas areas de memoria, logo para acessar ou modificar um ponteiro devemos realizar uma operação matematica que retorna a posição dentro da area
+
+    *((arr + i * n) + j) -> esta operação retorna uma referencia a posição do valor requisitado
+
+    onde:   arr -> Matriz
+            i -> posição da linha
+            j -> posição da coluna
+            n -> numero de linhas
+*/
+
 void print_array(const int &m, const int &n, int *matriz)
 {
     for(int i = 0; i < m; i++)
@@ -47,70 +59,77 @@ int explore(const int &m, const int &n, int *matriz, const int &i, const int &j)
     int b = 1;
     int h = 1;
 
+    // Verificação maior direção possivel
     int range_l = 1 + explore_l(m, n, matriz, i, j);
     int range_c = 1 + explore_c(m, n, matriz, i, j);
 
     if(range_l > range_c){
-        if(range_c == 1) return range_l;
+        //Analise por linha
+        if(range_c == 1) return range_l; // Caso particular, formação retangulo na linha
         b = range_l;
 
         int reduced = 0;
 
         for(int nl = 1; nl < range_c; nl++){
             int range_nl = 1 + explore_l(m, n, matriz, i + nl, j);
-            if(range_nl >= b && reduced == 0) h = nl + 1;
+            if(range_nl >= b && reduced == 0) h = nl + 1; // Alcance se manteve na linha i + nl
             else
             {
                 int temp_b = range_nl;
                 int temp_h = nl + 1;
 
+                // Verificação do sinalizador
                 if(reduced != 0)
                 {
-                    if(temp_b > reduced) temp_b = reduced;
+                    if(temp_b > reduced) temp_b = reduced;  // Verificar se o alcance calculado é maior que o sinalizador de redução
+                                                            // neste caso não podemos utilizar ele, para evitar uma area errada
                 }
 
-                if(temp_b*temp_h > b*h)
+                if(temp_b*temp_h > b*h) // Verificação de aumento da area
                 {
                     b = temp_b;
                     h = temp_h;
                 }
 
-                reduced = temp_b;
+                reduced = temp_b; // Atribuição do sinalizador de redução
             }
         }
 
-        if(range_l > b*h) return range_l;
+        if(range_l > b*h) return range_l; // Caso particular, area menor que retangulo na linha
 
     }else{
-        if(range_l == 1) return range_c;
+        // Analise por coluna
+        if(range_l == 1) return range_c; // Caso particular, formação retangulo na coluna
         h = range_c;
 
         int reduced = 0;
 
         for(int nc = 1; nc < range_l; nc++){
             int range_nc = 1 + explore_c(m, n, matriz, i, j + nc);
-            if(range_nc >= h && reduced == 0) b = nc + 1;
+            if(range_nc >= h && reduced == 0) b = nc + 1; // Alcance se manteve na coluna j + nc
             else
             {
                 int temp_b = nc + 1;
                 int temp_h = range_nc;
 
+                // Verificação do sinalizador
                 if(reduced != 0)
                 {
-                    if(temp_h > reduced) temp_h = reduced;
+                    if(temp_h > reduced) temp_h = reduced;  // Verificar se o alcance calculado é maior que o sinalizador de redução
+                                                            // neste caso não podemos utilizar ele, para evitar uma area errada
                 }
 
-                if(temp_b*temp_h > b*h)
+                if(temp_b*temp_h > b*h) // Verificação de aumento da area
                 {
                     b = temp_b;
                     h = temp_h;
                 }
 
-                reduced = temp_h;
+                reduced = temp_h; // Atribuição do sinalizador de redução
             }
         }
 
-        if(range_c > b*h) return range_c;
+        if(range_c > b*h) return range_c; // Caso particular, area menor que retangulo na coluna
     }
 
     return b*h;
@@ -135,7 +154,7 @@ bool readData(int& m, int& n, char** result){
     cout << "Digite o numero de colunas que a matriz booleana" << endl;
     cin >> n;
 
-    *result = new char[m * n];
+    *result = new char[m * n]; //Reservando o bloco de memória necessario para armazenar a matriz de entrada
 
     cout << "Digite os valores [Linha 1]" << endl;
 
@@ -146,6 +165,7 @@ bool readData(int& m, int& n, char** result){
 
     do
     {
+        // A cada iteraçãoo o algoritmo verifica a validade da entrada e passa para a proxima coluna
         cin >> v;
 
         *((*result + i * n) + j) = v;
@@ -153,16 +173,19 @@ bool readData(int& m, int& n, char** result){
 
         if(j > n - 1)
         {
+            // Ao contemplar todas as colunas ele passa para a próxima linha
             j = 0;
             i++;
             cout << "Digite os valores [Linha " << i + 1 << "]" << endl;
         }
         if(i > m - 1)
         {
+            // Ao finalizar a ultima linha ele retorna que a operação foi concluída
             return true;
         }
     }while(v == '1' || v == '0');
 
+    // No caso de uma entrada invalida, o algoritmo finaliza
     return false;
 }
 
@@ -181,13 +204,14 @@ int main()
         return 0;
     }
 
+    // Conversão da matriz [char*] para a nova matriz [int*]
     int* matrix = nullptr;
     parseToint(m, n, entry, &matrix);
 
-    delete[] entry;
+    delete[] entry; // sempre limpar a memoria alocada...
 
     cout << "Entrada: " << endl;
-    print_array(m, n, (int*)matrix);
+    print_array(m, n, matrix);
 
     int m_area = 0;
 
@@ -202,7 +226,6 @@ int main()
 
     cout << "Maior Area: " << m_area << endl;
 
-    delete[] matrix;
-
+    delete[] matrix; // desalocar a memoria da matriz que foi trabalhada.
     return 0;
 }
